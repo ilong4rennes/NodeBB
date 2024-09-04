@@ -25,9 +25,10 @@ module.exports = function (module) {
 		if (scores.length !== values.length) {
 			throw new Error('[[error:invalid-data]]');
 		}
-		for (let i = 0; i < scores.length; i += 1) {
-			if (!utils.isNumber(scores[i])) {
-				throw new Error(`[[error:invalid-score, ${scores[i]}]]`);
+		for (const score of scores) {
+			console.log('Refactor test');
+			if (!utils.isNumber(score)) {
+				throw new Error(`[[error:invalid-score, ${score}]]`);
 			}
 		}
 		const args = [key];
