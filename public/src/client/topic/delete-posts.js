@@ -20,28 +20,36 @@ define('forum/topic/delete-posts', [
 
 		app.parseAndTranslate('modals/delete-posts', {}, function (html) {
 			modal = html;
-
 			$('body').append(modal);
-
 			deleteBtn = modal.find('#delete_posts_confirm');
 			purgeBtn = modal.find('#purge_posts_confirm');
 
 			modal.find('#delete_posts_cancel').on('click', closeModal);
 
-			postSelect.init(function () {
-				checkButtonEnable();
-				showPostsSelected();
-			});
-			showPostsSelected();
+			// Refactor postSelect.init out into a separate function
+			initPostSelect();
 
 			deleteBtn.on('click', function () {
+				console.log('Delete button clicked'); // Added for debugging
 				deletePosts(deleteBtn, pid => `/posts/${pid}/state`);
 			});
+
 			purgeBtn.on('click', function () {
+				console.log('Purge button clicked'); // Added for debugging
 				deletePosts(purgeBtn, pid => `/posts/${pid}`);
 			});
 		});
 	};
+
+	// Separate function to reduce nesting depth
+	function initPostSelect() {
+		postSelect.init(function () {
+			console.log('Post select initialized'); // Added for debugging
+			checkButtonEnable();
+			showPostsSelected();
+		});
+		showPostsSelected();
+	}
 
 	function onAjaxifyEnd() {
 		if (ajaxify.data.template.name !== 'topic' || ajaxify.data.tid !== tid) {
@@ -52,8 +60,12 @@ define('forum/topic/delete-posts', [
 
 	function deletePosts(btn, route) {
 		btn.attr('disabled', true);
+		console.log('Deleting posts...'); // Added for debugging
 		Promise.all(postSelect.pids.map(pid => api.del(route(pid), {})))
-			.then(closeModal)
+			.then(() => {
+				console.log('Posts deleted successfully'); // Added for debugging
+				closeModal();
+			})
 			.catch(alerts.error)
 			.finally(() => {
 				btn.removeAttr('disabled');
@@ -61,6 +73,7 @@ define('forum/topic/delete-posts', [
 	}
 
 	function showPostsSelected() {
+		console.log('Showing selected posts'); // Added for debugging
 		if (postSelect.pids.length) {
 			modal.find('#pids').translateHtml('[[topic:fork-pid-count, ' + postSelect.pids.length + ']]');
 		} else {
